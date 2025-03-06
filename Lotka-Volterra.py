@@ -4,6 +4,7 @@ from dash.dependencies import Input, Output, State
 import plotly.graph_objs as go
 import numpy as np
 from scipy.integrate import odeint
+import os
 
 # Define the Lotka-Volterra equations
 def lotka_volterra(state, t, alpha, beta, gamma, delta):
@@ -161,7 +162,6 @@ def update_graph(alpha, beta, gamma, delta, click_data, current_initial_conditio
     
     # Add click event handler
     fig.update_traces(
-        # hoverinfo='skip',
         hoveron='points',
         hovertext='Click to set new initial condition'
     )
@@ -170,4 +170,5 @@ def update_graph(alpha, beta, gamma, delta, click_data, current_initial_conditio
 
 # Run the app
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    port = int(os.environ.get("PORT", 8050))
+    app.run_server(host='0.0.0.0', port=port, debug=False)
