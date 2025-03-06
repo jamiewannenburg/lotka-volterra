@@ -44,6 +44,8 @@ This app is configured for deployment on Heroku. To deploy:
 git push heroku main
 ```
 
+See https://up-openday-2025-57d03798734f.herokuapp.com/
+
 ## Model Description
 The Lotka-Volterra equations describe the dynamics between predator and prey populations:
 
