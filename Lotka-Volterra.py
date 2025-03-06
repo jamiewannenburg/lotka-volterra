@@ -1,4 +1,5 @@
 import dash
+import flask
 from dash import dcc, html
 from dash.dependencies import Input, Output, State
 import plotly.graph_objs as go
@@ -20,7 +21,8 @@ def solve_lotka_volterra(initial_conditions, alpha, beta, gamma, delta):
     return t, solution[:, 0], solution[:, 1]  # time, prey, predators
 
 # Initialize Dash app
-app = dash.Dash(__name__)
+server = flask.Flask(__name__)
+app = dash.Dash(__name__, server=server)
 
 # Default initial conditions
 DEFAULT_INITIAL_CONDITIONS = [10.0, 5.0]

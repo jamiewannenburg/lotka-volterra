@@ -1,1 +1,1 @@
-web: gunicorn Lotka-Volterra:app.server 
+web: gunicorn Lotka-Volterra:server 
