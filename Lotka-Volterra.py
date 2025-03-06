@@ -22,12 +22,12 @@ def solve_lotka_volterra(initial_conditions, alpha, beta, gamma, delta):
 app = dash.Dash(__name__)
 
 # Default initial conditions
-initial_conditions = [10.0, 5.0]
+DEFAULT_INITIAL_CONDITIONS = [10.0, 5.0]
 
 # App layout
 app.layout = html.Div([
     html.H1("Lotka-Volterra Model Interactive App"),
-    dcc.Graph(id='phase-plot', style={'width': '80%', 'height': '600px'}),
+    dcc.Graph(id='phase-plot', style={'width': '80%', 'height': 'auto', 'aspectRatio': '1/1'}),
     html.Div([
         html.Label("α (Prey Growth Rate):"),
         dcc.Slider(id='alpha-slider', min=0.1, max=2.0, step=0.1, value=1.0, marks={i: str(i) for i in np.arange(0.1, 2.1, 0.5)}),
@@ -38,12 +38,13 @@ app.layout = html.Div([
         html.Label("δ (Predator Growth Rate):"),
         dcc.Slider(id='delta-slider', min=0.01, max=0.2, step=0.01, value=0.075, marks={i: str(i) for i in np.arange(0.01, 0.21, 0.05)})
     ], style={'width': '80%', 'padding': '20px'}),
-    html.Div(id='click-data', style={'display': 'none'})  # Hidden div to store click data
+    dcc.Store(id='initial-conditions-store', data=DEFAULT_INITIAL_CONDITIONS)  # Store for initial conditions
 ])
 
 # Callback to update the graph based on sliders and clicks
 @app.callback(
-    Output('phase-plot', 'figure'),
+    [Output('phase-plot', 'figure'),
+     Output('initial-conditions-store', 'data')],
     [
         Input('alpha-slider', 'value'),
         Input('beta-slider', 'value'),
@@ -51,21 +52,36 @@ app.layout = html.Div([
         Input('delta-slider', 'value'),
         Input('phase-plot', 'clickData')
     ],
-    [State('phase-plot', 'figure')]
+    [State('initial-conditions-store', 'data')]
 )
-def update_graph(alpha, beta, gamma, delta, click_data, current_figure):
-    global initial_conditions
-    
+def update_graph(alpha, beta, gamma, delta, click_data, current_initial_conditions):
     # Update initial conditions if a click occurred
     if click_data:
         initial_conditions = [click_data['points'][0]['x'], click_data['points'][0]['y']]
+    else:
+        initial_conditions = current_initial_conditions
     
     # Solve the system
     prey, predators = solve_lotka_volterra(initial_conditions, alpha, beta, gamma, delta)
     
     # Create the Plotly figure
     fig = go.Figure()
-    
+
+    # Add invisible grid points for precise selection
+    x_max = 100
+    y_max = 100
+    x_grid = np.linspace(0, x_max, 100)
+    y_grid = np.linspace(0, y_max, 100)
+    X_grid, Y_grid = np.meshgrid(x_grid, y_grid)
+
+    fig.add_trace(go.Scatter(
+        x=X_grid.flatten(),
+        y=Y_grid.flatten(),
+        mode='markers',
+        marker=dict(color='rgba(0,0,0,0)', size=1),
+        showlegend=False
+    ))
+
     # Add trajectory
     fig.add_trace(go.Scatter(
         x=prey,
@@ -90,11 +106,11 @@ def update_graph(alpha, beta, gamma, delta, click_data, current_figure):
         xaxis_title='Prey Population',
         yaxis_title='Predator Population',
         showlegend=True,
-        xaxis=dict(range=[0, max(prey.max(), initial_conditions[0]) * 1.2]),
-        yaxis=dict(range=[0, max(predators.max(), initial_conditions[1]) * 1.2])
+        xaxis=dict(range=[0, x_max]),
+        yaxis=dict(range=[0, y_max]) 
     )
     
-    return fig
+    return fig, initial_conditions
 
 # Run the app
 if __name__ == '__main__':
