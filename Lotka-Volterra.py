@@ -27,7 +27,7 @@ DEFAULT_INITIAL_CONDITIONS = [10.0, 5.0]
 # App layout
 app.layout = html.Div([
     html.H1("Lotka-Volterra Model Interactive App"),
-    dcc.Graph(id='phase-plot', style={'width': '80%', 'height': 'auto', 'aspectRatio': '1/1'}),
+    dcc.Graph(id='phase-plot', style={'width': '80%', 'height': 'auto', 'aspectRatio': '2/1'}),
     html.Div([
         html.Label("α (Prey Growth Rate):"),
         dcc.Slider(id='alpha-slider', min=0.1, max=2.0, step=0.1, value=1.0, marks={i: str(i) for i in np.arange(0.1, 2.1, 0.5)}),
@@ -69,7 +69,7 @@ def update_graph(alpha, beta, gamma, delta, click_data, current_initial_conditio
 
     # Add invisible grid points for precise selection
     x_max = 100
-    y_max = 100
+    y_max = 50
     x_grid = np.linspace(0, x_max, 100)
     y_grid = np.linspace(0, y_max, 100)
     X_grid, Y_grid = np.meshgrid(x_grid, y_grid)
