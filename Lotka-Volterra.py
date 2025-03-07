@@ -16,7 +16,7 @@ def lotka_volterra(state, t, alpha, beta, gamma, delta):
 
 # Solve the system and return the trajectory
 def solve_lotka_volterra(initial_conditions, alpha, beta, gamma, delta):
-    t = np.linspace(0, 10, 200)  # Reduced from 1000 to 200 points
+    t = np.linspace(0, 10, 100)
     solution = odeint(lotka_volterra, initial_conditions, t, args=(alpha, beta, gamma, delta))
     return t, solution[:, 0], solution[:, 1]  # time, prey, predators
 
@@ -29,18 +29,21 @@ DEFAULT_INITIAL_CONDITIONS = [10.0, 5.0]
 
 # App layout
 app.layout = html.Div([
-    html.H1("Lotka-Volterra Model Interactive App"),
-    dcc.Graph(id='phase-plot', style={'width': '80%', 'height': 'auto', 'aspectRatio': '2/1'}),
+    html.Div([
+        html.H1("Predator vs Pray"),
+        dcc.Markdown(r'$$\begin{align} \frac{dx}{dt} &= \alpha x - \beta x y \\ \frac{dy}{dt} &= -\gamma y + \delta x y \end{align}$$',mathjax=True),
+    ], style={'width': '90%', 'padding': '20px', 'text-align': 'center'}),
+    dcc.Graph(id='phase-plot', style={'width': 'auto', 'min-width': '80%', 'height': '800px', 'aspectRatio': '2/1'}),
     html.Div([
         html.Label("α (Prey Growth Rate):"),
-        dcc.Slider(id='alpha-slider', min=0.1, max=2.0, step=0.1, value=1.0, marks={i: str(i) for i in np.arange(0.1, 2.1, 0.5)}),
+        dcc.Slider(id='alpha-slider', min=0.1, max=2.0, step=0.1, value=1.0), #, marks={i: str(i) for i in np.arange(0.1, 2.1, 0.5)}
         html.Label("β (Predation Rate):"),
-        dcc.Slider(id='beta-slider', min=0.01, max=0.5, step=0.01, value=0.1, marks={i: str(i) for i in np.arange(0.01, 0.51, 0.1)}),
+        dcc.Slider(id='beta-slider', min=0.01, max=0.5, step=0.01, value=0.1), #, marks={i: str(i) for i in np.arange(0.01, 0.51, 0.1)}
         html.Label("γ (Predator Death Rate):"),
-        dcc.Slider(id='gamma-slider', min=0.1, max=2.0, step=0.1, value=1.5, marks={i: str(i) for i in np.arange(0.1, 2.1, 0.5)}),
+        dcc.Slider(id='gamma-slider', min=0.1, max=2.0, step=0.1, value=1.5), #, marks={i: str(i) for i in np.arange(0.1, 2.1, 0.5)}
         html.Label("δ (Predator Growth Rate):"),
-        dcc.Slider(id='delta-slider', min=0.01, max=0.2, step=0.01, value=0.075, marks={i: str(i) for i in np.arange(0.01, 0.21, 0.05)})
-    ], style={'width': '80%', 'padding': '20px'}),
+        dcc.Slider(id='delta-slider', min=0.01, max=0.2, step=0.01, value=0.075) #, marks={i: str(i) for i in np.arange(0.01, 0.21, 0.05)}
+    ], style={'width': '90%', 'padding': '20px'}),
     dcc.Store(id='initial-conditions-store', data=DEFAULT_INITIAL_CONDITIONS)  # Store for initial conditions
 ])
 
@@ -73,8 +76,8 @@ def update_graph(alpha, beta, gamma, delta, click_data, current_initial_conditio
     # Add invisible grid points for precise selection (reduced grid density)
     x_max = 100
     y_max = 50
-    x_grid = np.linspace(0, x_max, 25)  # Reduced from 50 to 25
-    y_grid = np.linspace(0, y_max, 25)  # Reduced from 50 to 25
+    x_grid = np.linspace(0, x_max, 25)
+    y_grid = np.linspace(0, y_max, 25)
     X_grid, Y_grid = np.meshgrid(x_grid, y_grid)
 
     fig.add_trace(go.Scatter(
@@ -135,10 +138,11 @@ def update_graph(alpha, beta, gamma, delta, click_data, current_initial_conditio
     
     # Update layout with animation settings
     fig.update_layout(
-        title='Lotka-Volterra Phase Space',
+        # title='Lotka-Volterra Phase Space',
+        margin={"t": 5},
         xaxis_title='Prey Population',
         yaxis_title='Predator Population',
-        showlegend=True,
+        showlegend=False,
         xaxis=dict(range=[0, x_max]),
         yaxis=dict(range=[0, y_max]),
         updatemenus=[dict(
